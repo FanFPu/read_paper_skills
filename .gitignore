@@ -1,0 +1,7 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.pdf
+*_reading/
+figures/
+figures_panel_modules/

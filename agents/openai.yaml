@@ -1,0 +1,4 @@
+interface:
+  display_name: "Read Literature PDF"
+  short_description: "Deep Chinese paper-reading reports from PDFs"
+  default_prompt: "Use $read-literature-pdf to read this uploaded paper PDF and create a structured Chinese Markdown report with figure screenshots."
