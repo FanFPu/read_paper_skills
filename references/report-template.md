@@ -115,11 +115,17 @@
 | Flow cytometry | <用途> | <样本> | <门控/细胞比例> |
 | 功能实验 | <用途> | <模型> | <干预和 readout> |
 
-### 6.1 方法 / 实验设计示意图
+### 6.1 AI 方法 / 实验设计示意图（必选 1）
 
-![AI method schematic placeholder](AI_METHOD_SCHEMATIC_PLACEHOLDER)
+![AI method schematic](figures_ai/AI_Method_or_Study_Design.png)
 
-**AI 示意图说明：** 本图为根据原文信息生成的辅助示意图，不是原文数据图。建议用于概括样本设计、测序流程、共培养体系、动物治疗流程或机制模型。
+**AI 示意图说明：** 本图为根据原文信息生成的辅助机制/方法示意图，不是原文数据图。用于概括样本设计、测序流程、共培养体系、动物治疗流程或机制模型。
+
+### 6.2 AI 机制模型示意图（第 2 张，按文章复杂度使用）
+
+![AI mechanism schematic](figures_ai/AI_Mechanism_Model.png)
+
+**AI 示意图说明：** 本图为根据原文信息生成的辅助机制/方法示意图，不是原文数据图。若最终报告只使用 1 张 AI 图，需要在此说明原因，例如“本文机制链条较集中，已合并到上一张 AI 示意图中”。
 
 ## 7. Results 逐段解析
 
@@ -150,48 +156,44 @@
 
 #### 7.1.5 图表模块解读
 
+> 图片清晰度检查：panel 标注是否可见；坐标轴/图例是否可读；是否去掉页眉页脚和无关空白；是否未插入整页 figure。
+
 - Figure 1A：
 - Figure 1B：
 - Figure 1C：
 
 ##### 模块 1：<逻辑主题，例如样本设计与细胞图谱>
 
-![Figure 1A-C placeholder](FIGURE_1A_C_PLACEHOLDER)
+![Figure 1A-C](figures/Figure_1A_C.png)
 
-> 待替换图片：Figure 1A-C，建议截取 PDF 第 X 页，展示……
+> 图片要求：只插入 Figure 1A-C 对应局部 panel/module 高清裁剪图，禁止插入整页 figure。
 
 **图示解读：**  
 <这个图块对应什么问题；用了什么方法；读图先看哪里；结果说明什么。>
 
 ##### 模块 2：<逻辑主题，例如关键细胞状态变化>
 
-![Figure 1D-F placeholder](FIGURE_1D_F_PLACEHOLDER)
+![Figure 1D-F](figures/Figure_1D_F.png)
 
-> 待替换图片：Figure 1D-F，建议截取 PDF 第 X 页，展示……
+> 图片要求：只插入 Figure 1D-F 对应局部 panel/module 高清裁剪图，禁止插入整页 figure。
 
 **图示解读：**  
 <这个图块对应什么问题；用了什么方法；读图先看哪里；结果说明什么。>
 
 ##### 模块 3：<逻辑主题，例如临床/空间/功能验证>
 
-![Figure 1G-I placeholder](FIGURE_1G_I_PLACEHOLDER)
+![Figure 1G-I](figures/Figure_1G_I.png)
 
-> 待替换图片：Figure 1G-I，建议截取 PDF 第 X 页，展示……
+> 图片要求：只插入 Figure 1G-I 对应局部 panel/module 高清裁剪图，禁止插入整页 figure。
 
 **图示解读：**  
 <这个图块对应什么问题；用了什么方法；读图先看哪里；结果说明什么。>
 
-#### 7.1.6 方法或机制示意图
-
-![AI schematic placeholder](AI_RESULT_1_SCHEMATIC_PLACEHOLDER)
-
-**AI 示意图说明：** 本图为根据原文信息生成的辅助示意图，不是原文数据图。可用于概括该 Results 小节的实验设计、分析流程或机制链条。
-
-#### 7.1.7 该部分结论
+#### 7.1.6 该部分结论
 
 <该 Results 小节支持的结论。>
 
-#### 7.1.8 可借鉴分析思路
+#### 7.1.7 可借鉴分析思路
 
 <可迁移到用户课题的分析或实验设计。>
 
@@ -207,31 +209,27 @@
 
 #### 7.2.5 图表模块解读
 
+> 图片清晰度检查：panel 标注是否可见；坐标轴/图例是否可读；是否去掉页眉页脚和无关空白；是否未插入整页 figure。
+
 ##### 模块 1：<逻辑主题>
 
-![Figure 2A-C placeholder](FIGURE_2A_C_PLACEHOLDER)
+![Figure 2A-C](figures/Figure_2A_C.png)
 
-> 待替换图片：Figure 2A-C，建议截取 PDF 第 X 页，展示……
+> 图片要求：只插入 Figure 2A-C 对应局部 panel/module 高清裁剪图，禁止插入整页 figure。
 
 **图示解读：**
 
 ##### 模块 2：<逻辑主题>
 
-![Figure 2D-F placeholder](FIGURE_2D_F_PLACEHOLDER)
+![Figure 2D-F](figures/Figure_2D_F.png)
 
-> 待替换图片：Figure 2D-F，建议截取 PDF 第 X 页，展示……
+> 图片要求：只插入 Figure 2D-F 对应局部 panel/module 高清裁剪图，禁止插入整页 figure。
 
 **图示解读：**
 
-#### 7.2.6 方法或机制示意图
+#### 7.2.6 该部分结论
 
-![AI schematic placeholder](AI_RESULT_2_SCHEMATIC_PLACEHOLDER)
-
-**AI 示意图说明：** 本图为根据原文信息生成的辅助示意图，不是原文数据图。
-
-#### 7.2.7 该部分结论
-
-#### 7.2.8 可借鉴分析思路
+#### 7.2.7 可借鉴分析思路
 
 ## 8. 文章主要结论
 

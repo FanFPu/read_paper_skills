@@ -1,13 +1,13 @@
 ---
 name: read-literature-pdf
-description: Deeply read scientific or biomedical literature PDFs and produce structured Chinese Markdown reading reports with bibliographic metadata, authors and affiliations, journal/date/impact-factor handling, research background, sample and experimental design, sequencing or assay methods, ordered Results-by-heading interpretation, panel/module-level main-figure screenshots, optional AI-generated method/mechanism schematics, conclusions, limitations, and reusable analysis ideas. Use when a user uploads or references a paper PDF and asks for 文献精读, 深度阅读, 结构化整理, 组会/文献分享报告, figure-by-figure or panel-by-panel paper explanation, or figure-based summaries.
+description: Deeply read scientific or biomedical literature PDFs and produce structured Chinese Markdown reading reports with bibliographic metadata, authors and affiliations, journal/date/impact-factor handling, research background, sample and experimental design, sequencing or assay methods, ordered Results-by-heading interpretation, high-resolution panel/module-level main-figure screenshots, 1-2 required AI-generated method/mechanism schematics, conclusions, limitations, and reusable analysis ideas. Use when a user uploads or references a paper PDF and asks for 文献精读, 深度阅读, 结构化整理, 组会/文献分享报告, figure-by-figure or panel-by-panel paper explanation, or figure-based summaries.
 ---
 
 # Read Literature PDF
 
 ## Goal
 
-Produce a Chinese Markdown literature-reading report from a research PDF. The report must be analytical rather than a direct translation, must follow the paper's actual Results order, and must explain main figures at the panel/module level with screenshots saved in a `figures/` folder. Do not use a whole-page figure as the only visual explanation when the figure contains multiple logical parts.
+Produce a Chinese Markdown literature-reading report from a research PDF. The report must be analytical rather than a direct translation, must follow the paper's actual Results order, must include 1-2 AI-generated method/mechanism schematics, and must explain main figures using high-resolution panel/module screenshots saved in a `figures/` folder. Whole-page figure outputs are forbidden: do not save them as report assets and do not insert them into the final Markdown.
 
 ## Workflow
 
@@ -23,8 +23,8 @@ Produce a Chinese Markdown literature-reading report from a research PDF. The re
 
 4. Extract bibliographic and study-design facts. If a value is not explicitly stated in the PDF, write `原文未明确说明` or, for impact factor, `PDF 中未提供，需外部查询确认`.
 5. Draft the Markdown with figure-module placeholders first. Use `references/report-template.md` when a full skeleton is useful.
-6. Locate main-text figures in the PDF, render page previews, then crop each figure into logical panel groups. Save module screenshots under `figures/`, then replace all placeholders with real image links.
-7. For complex study designs, sequencing/analysis workflows, co-culture experiments, treatment regimens, or mechanistic models, optionally generate original AI schematic diagrams and save them under `figures/`. Label them clearly as AI-generated schematics.
+6. Locate main-text figures in the PDF, then crop each figure directly into high-resolution logical panel groups. Save only panel/module screenshots under `figures/`, then replace all placeholders with real image links. Do not save whole-page figure images such as `page_003.png` or `Figure_1_full.png` as report assets.
+7. Generate 1-2 original AI schematic diagrams for the paper's central method, experimental design, analytical workflow, or mechanism model. Save them under `figures_ai/` and label them clearly as AI-generated schematics.
 8. Run a final quality pass against the checklist below before delivering the report.
 
 ## Required Report Content
@@ -37,8 +37,8 @@ Include these sections unless the user asks for a shorter format:
 - 样本信息与实验设计：样本来源、样本类型、患者数量、样本数量、单细胞数量、分组、队列、验证队列、公共数据库。
 - 测序与实验方法：scRNA-seq、snRNA-seq、bulk RNA-seq、WES/WGS、ATAC-seq、CITE-seq、空间转录组、IHC/IF、Flow、qPCR、Western blot、功能实验等。
 - Results 逐段解析：严格按原文 Results 小标题顺序逐条整理，并在每个 Result 中按 figure panels 或证据模块讲解。
-- 主图截图与图示解读：优先 main figures，不优先 supplementary figures；主图必须尽量拆成多个 panel/module 截图，而不是只贴整页图。
-- 方法/机制示意图：对复杂实验设计或分析流程，可加入 AI 生成的原创示意图辅助讲解，并与原文数据图分开标注。
+- 主图截图与图示解读：优先 main figures，不优先 supplementary figures；主图必须拆成高清 panel/module 截图，禁止保存或插入整页 figure。
+- 方法/机制示意图：每篇报告必须包含 1-2 张 AI 生成的原创方法/机制示意图，并与原文数据图分开标注。
 - 文章主要结论、创新点、局限性、对用户课题的启发、可复用分析方法总结。
 
 ## Information Extraction Rules
@@ -156,6 +156,7 @@ Only search the web for the current impact factor when the user explicitly asks 
 
 **需要注意的局限：**  
 如果适用，说明该方法可能存在的假设、偏差或解释限制。
+```
 
 ## Results Parsing Format
 
@@ -186,11 +187,8 @@ Use this compact structure:
 ##### 模块 2：<逻辑主题，例如临床验证 / 功能实验>
 ![Figure N module](figures/Figure_ND_F.png)
 **图示解读：**
-#### 7.N.6 方法或机制示意图
-![AI schematic](figures/AI_Method_Schematic_Result_N.png)
-**图示说明：** 本图为 AI 生成示意图，用于概括实验设计或机制模型，不代表原文数据。
-#### 7.N.7 该部分结论
-#### 7.N.8 可借鉴分析思路
+#### 7.N.6 该部分结论
+#### 7.N.7 可借鉴分析思路
 ```
 
 In `主要结果`, add brief "这说明什么" interpretation for complex findings.
@@ -209,7 +207,7 @@ In `主要结果`, add brief "这说明什么" interpretation for complex findin
    > 待替换图片：Figure 1D-F，建议截取 PDF 第 X 页，展示差异丰度和关键细胞状态。
    ```
 
-2. Return to the PDF and locate main figures. First render full pages as previews, then crop each main figure into logical modules. Use the figure legend to map each panel to a claim.
+2. Return to the PDF and locate main figures, then crop each main figure into logical modules. Use the figure legend to map each panel to a claim. Do not save rendered full pages or full figures into the report output directory.
 3. Split figures by reasoning units:
    - Study design / cohort overview
    - UMAP or atlas construction
@@ -218,7 +216,7 @@ In `主要结果`, add brief "这说明什么" interpretation for complex findin
    - Clinical cohort validation / survival / recurrence
    - Functional experiment / perturbation
    - Mechanistic model
-4. Save screenshots under `figures/` with names like `Figure_1A_C.png`, `Figure_1D_F.png`, `Figure_3_Coculture.png`, `Figure_4_Recurrence.png`. A whole figure screenshot such as `Figure_1_full.png` may be included only as a supplement or overview, not as the only image for that Result.
+4. Save only panel/module screenshots under `figures/` with names like `Figure_1A_C.png`, `Figure_1D_F.png`, `Figure_3_Coculture.png`, `Figure_4_Recurrence.png`. Never save whole-page or full-figure images such as `Figure_1_full.png`, `page_003.png`, or `Figure_2_page_5.png` as report assets.
 5. Replace every placeholder:
 
    ```markdown
@@ -236,11 +234,35 @@ In `主要结果`, add brief "这说明什么" interpretation for complex findin
    - 它如何支持本 Results 小节的结论
 7. Do not leave placeholders in the final report unless the PDF is inaccessible or figure extraction fails. If that happens, state the reason and the exact figure/page/panel that still needs manual capture.
 
-## AI Schematic Workflow
+## Figure Clarity Requirement
 
-Use AI-generated schematics only as explanatory aids for methods, experimental design, analytical workflow, or mechanism models. They must not replace original data panels from the PDF.
+All paper-derived figure assets must be high-resolution local crops of the original figure panels/modules.
 
-When useful, generate schematics with the available image generation tool, such as ChatGPT-Image-2 or the active image generation capability. Save outputs under `figures/` with names such as:
+Rules:
+
+- Render or crop at a high enough resolution for panel letters, axes, legends, statistical labels, and key annotations to remain readable in Markdown preview.
+- Prefer larger crops over over-tight crops when legends, labels, or contextual panel groupings would otherwise be lost.
+- Crop away page headers, footers, citation strips, journal watermarks, unrelated whitespace, and neighboring panels that are not part of the current explanation.
+- If a crop is blurry, too small, or unreadable, regenerate it at higher resolution or with a wider crop.
+- For a single-panel original figure, still crop to the figure body and necessary legend only; remove page-level text and unrelated margins.
+
+## Full-page Figure Ban
+
+Whole-page figures are forbidden in final outputs.
+
+Rules:
+
+- Do not insert whole-page PDF screenshots into the final Markdown.
+- Do not save whole-page figure files in the report output folders.
+- Do not use filenames such as `Figure_1_full.png`, `page_003.png`, `Figure_2_page_5.png`, or similar full-page/full-figure assets for report images.
+- If temporary full-page previews are unavoidable in a runtime, keep them outside the report output folders and delete them before delivery.
+- The final report may only reference localized panel/module crops and AI-generated schematics.
+
+## AI Mechanism Figure Requirement
+
+Every final report must include 1-2 AI-generated schematics as explanatory aids for methods, experimental design, analytical workflow, or mechanism models. They must not replace original data panels from the PDF.
+
+Generate schematics with the available image generation tool, such as ChatGPT-Image-2 or the active image generation capability. Save outputs under `figures_ai/` with names such as:
 
 - `AI_Study_Design.png`
 - `AI_scRNAseq_Workflow.png`
@@ -253,8 +275,8 @@ Rules:
 - Avoid inventing sample sizes, pathways, cell types, or outcomes.
 - Use clean scientific schematic style suitable for a group meeting.
 - Prefer simple labels and arrows over dense text.
-- Add a caption beginning with `**AI 示意图说明：** 本图为根据原文信息生成的辅助示意图，不是原文数据图。`
-- If image generation is unavailable, insert a Mermaid diagram or a text workflow instead and mark it as a schematic summary.
+- Add a caption beginning with `**AI 示意图说明：** 本图为根据原文信息生成的辅助机制/方法示意图，不是原文数据图。`
+- If image generation fails or is unavailable, state the failure reason in the final report. Do not silently omit the required AI schematic. A Mermaid diagram or text workflow may be added as a fallback summary, but it does not count as the required AI-generated image unless an actual image file is produced.
 
 ## Quality Checklist
 
@@ -264,10 +286,11 @@ Before finalizing, verify:
 - Impact factor is sourced from the PDF, externally verified with citation, or marked `PDF 中未提供，需外部查询确认`.
 - Results sections follow the paper's original order.
 - Each Result includes purpose, samples/data, methods, findings, logic chain, figure modules, conclusion, and reusable analysis ideas.
-- Main figures are split into panel/module screenshots wherever feasible; whole-page figures are not the only visual explanation for multi-panel Results.
+- Main figures are split into high-resolution panel/module screenshots; no whole-page figures are saved or referenced.
 - All main figure placeholders are replaced with paths under `figures/`.
 - Figure module screenshots correspond to the surrounding text and cite the correct panel labels.
-- AI-generated schematics, if used, are clearly marked and do not imply they are original paper data.
+- Figure clarity has been checked: panel letters, axes, legends, key labels, and statistics are readable; page headers, footers, citation strips, and unrelated whitespace are removed.
+- 1-2 AI-generated schematics are present under `figures_ai/`, clearly marked, and do not imply they are original paper data.
 - The report ends with an integrated summary and user-topic inspiration.
 - No information is invented beyond the PDF or cited external sources.
 ## Do Not
@@ -279,6 +302,7 @@ Before finalizing, verify:
 - Do not invent missing sample numbers, sequencing platforms, impact factors, pathways, or author affiliations.
 - Do not leave figure placeholders in the final report unless figure extraction fails.
 - Do not use AI-generated schematics as substitutes for original paper figures.
+- Do not save or reference whole-page/full-figure screenshots such as `Figure_1_full.png`, `page_003.png`, or `Figure_2_page_5.png`.
 
 ## Resource
 

@@ -9,7 +9,7 @@
       /_/          panel-by-panel figures + method notes
 ```
 
-`read-literature-pdf` is a Codex skill for deep reading of scientific literature PDFs. It turns a paper into a structured Chinese Markdown report with bibliographic metadata, study design, sample tables, method summaries, Results-by-heading interpretation, panel/module-level figure screenshots, and reusable analysis ideas.
+`read-literature-pdf` is a Codex skill for deep reading of scientific literature PDFs. It turns a paper into a structured Chinese Markdown report with bibliographic metadata, study design, sample tables, method summaries, Results-by-heading interpretation, high-resolution panel/module-level figure screenshots, 1-2 required AI-generated mechanism/method schematics, and reusable analysis ideas.
 
 It is designed for biomedical and omics papers, especially papers involving single-cell sequencing, spatial transcriptomics, bulk RNA-seq, WES/WGS, imaging, flow cytometry, animal models, clinical cohorts, and immunology or cancer biology.
 
@@ -21,8 +21,9 @@ It is designed for biomedical and omics papers, especially papers involving sing
 - Organizes sample information, patient cohorts, grouping design, sequencing methods, experimental validation, and public datasets.
 - Parses the Results section in the paper's original order.
 - Explains each Result as a logic chain: purpose -> data/method -> finding -> figure evidence -> conclusion.
-- Splits complex main figures into panel or module screenshots instead of pasting one whole page.
-- Adds optional method or mechanism schematics for complex workflows.
+- Splits complex main figures into high-resolution panel or module screenshots instead of pasting one whole page.
+- Requires 1-2 AI-generated method or mechanism schematics for complex workflows.
+- Forbids whole-page figure screenshots in final report assets.
 - Marks missing information clearly as `原文未明确说明` instead of inventing details.
 
 ## Output Style
@@ -62,8 +63,8 @@ The report usually contains:
    +------------+      +-------------+      +----------------+
          |                    |                      |
          v                    v                      v
-    page text           Result logic          panel screenshots
-    metadata            method summary        reusable ideas
+    page text           Result logic          clean panel crops
+    metadata            AI schematic          reusable ideas
 ```
 
 Think of it as a tiny paper-reading helper with a highlighter in one hand and a figure cutter in the other.
@@ -98,6 +99,15 @@ A helper script for PDF preparation:
 - extract metadata
 - render pages when PyMuPDF is available
 - crop figure regions using normalized coordinates
+
+Recommended report output folders:
+
+```text
+paper_reading/
+├── literature_reading_report.md
+├── figures/       # only local panel/module crops from original paper figures
+└── figures_ai/    # 1-2 AI-generated method/mechanism schematics
+```
 
 ## Installation
 
@@ -143,7 +153,7 @@ For a more specific request:
 
 The skill is intentionally opinionated about figures.
 
-For multi-panel figures, it should avoid using a whole-page figure as the only visual evidence. Instead, it should crop and explain modules such as:
+For multi-panel figures, it must never use a whole-page figure as report evidence. Instead, it should crop and explain high-resolution modules such as:
 
 - cohort or study design
 - UMAP / atlas construction
@@ -171,9 +181,34 @@ Figure 1A-C 主要展示……
 Figure 1D-F 说明……
 ```
 
+### Full-page Figure Ban
+
+Whole-page figure screenshots are forbidden in report outputs.
+
+Do not save or reference files like:
+
+```text
+Figure_1_full.png
+page_003.png
+Figure_2_page_5.png
+```
+
+Even when the paper has a single-panel figure, crop away page headers, footers, citation strips, journal watermarks, unrelated margins, and neighboring content. Keep only the figure body and the necessary legend or labels.
+
+### Figure Clarity Checklist
+
+Before final delivery, each paper-derived figure crop should pass this check:
+
+- panel letter is visible
+- axes and legends are readable
+- important statistics and labels are readable
+- crop is not blurry or too small
+- unrelated page text has been removed
+- no whole-page figure appears in Markdown or output folders
+
 ## AI Schematic Rule
 
-The skill may add AI-generated or diagrammatic schematics for complex methods or mechanisms, but these must be clearly separated from original paper figures.
+Every final report must include 1-2 AI-generated schematics for complex methods, experimental design, computational workflow, or biological mechanism. These must be clearly separated from original paper figures.
 
 Allowed schematic types:
 
@@ -187,10 +222,10 @@ Allowed schematic types:
 Required caption:
 
 ```markdown
-**AI 示意图说明：** 本图为根据原文信息生成的辅助示意图，不是原文数据图。
+**AI 示意图说明：** 本图为根据原文信息生成的辅助机制/方法示意图，不是原文数据图。
 ```
 
-If image generation is unavailable, Mermaid diagrams or text workflows can be used instead.
+If image generation fails or is unavailable, the final report must say why. Mermaid diagrams or text workflows can be added as fallback summaries, but they do not count as the required AI-generated image unless an actual image file is produced.
 
 ## PDF Helper Script
 
@@ -233,6 +268,9 @@ This skill should:
 - avoid fabricating impact factors or sample numbers
 - distinguish original data figures from generated schematics
 - connect each figure module to a concrete claim
+- include 1-2 AI-generated schematics under `figures_ai/`
+- exclude whole-page figure screenshots from final outputs
+- verify panel/module crops are clear and readable
 - end with summary, limitations, and reusable ideas
 
 ## Best-Fit Papers
