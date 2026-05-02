@@ -1,0 +1,4 @@
+interface:
+  display_name: "Literature PPT From Markdown"
+  short_description: "Turn paper-reading Markdown into lab-meeting PPT"
+  default_prompt: "Use $literature-ppt-from-markdown to convert this Markdown literature report into an editable Chinese lab-meeting PPT with figure-module slides."

@@ -1,34 +1,43 @@
-# read-literature-pdf
+# read_paper_skills
 
 ```
         .--.
        / _  \        PDF
-      | (_)  |   +---------+
-       \__  /    | paper   |  ->  Chinese structured reading report
+      | (_)  |   +---------+       +----------+
+       \__  /    | paper   |  ->  | Markdown |  ->  lab-meeting PPT
        / /       +---------+
-      /_/          panel-by-panel figures + method notes
+      /_/          panel crops + AI schematics + journal-club slides
 ```
 
-`read-literature-pdf` is a Codex skill for deep reading of scientific literature PDFs. It turns a paper into a structured Chinese Markdown report with bibliographic metadata, study design, sample tables, method summaries, Results-by-heading interpretation, high-resolution panel/module-level figure screenshots, 1-2 required AI-generated mechanism/method schematics, and reusable analysis ideas.
+`read_paper_skills` is a small skill collection for biomedical paper reading and lab-meeting preparation.
 
-It is designed for biomedical and omics papers, especially papers involving single-cell sequencing, spatial transcriptomics, bulk RNA-seq, WES/WGS, imaging, flow cytometry, animal models, clinical cohorts, and immunology or cancer biology.
+It currently contains two linked workflows:
 
-## What It Does
+1. `read-literature-pdf`: read a scientific PDF deeply and generate a structured Chinese Markdown report.
+2. `literature-ppt-from-markdown`: convert that Markdown report into an editable Chinese lab-meeting PowerPoint deck.
 
-- Reads a full paper PDF, not only the abstract.
-- Extracts article information: title, authors, affiliations, journal, date, DOI, article type, and impact-factor handling.
-- Summarizes research background, unresolved questions, core hypothesis, and innovation.
-- Organizes sample information, patient cohorts, grouping design, sequencing methods, experimental validation, and public datasets.
-- Parses the Results section in the paper's original order.
-- Explains each Result as a logic chain: purpose -> data/method -> finding -> figure evidence -> conclusion.
-- Splits complex main figures into high-resolution panel or module screenshots instead of pasting one whole page.
-- Requires 1-2 AI-generated method or mechanism schematics for complex workflows.
-- Forbids whole-page figure screenshots in final report assets.
-- Marks missing information clearly as `原文未明确说明` instead of inventing details.
+The workflow is designed for biomedical and omics papers, especially papers involving single-cell sequencing, spatial transcriptomics, bulk RNA-seq, WES/WGS, imaging, flow cytometry, animal models, clinical cohorts, and immunology or cancer biology.
+
+## Skills
+
+### `read-literature-pdf`
+
+Turns a paper PDF into a structured Chinese Markdown report with bibliographic metadata, study design, sample tables, method summaries, Results-by-heading interpretation, high-resolution panel/module-level figure screenshots, 1-2 required AI-generated mechanism/method schematics, and reusable analysis ideas.
+
+### `literature-ppt-from-markdown`
+
+Turns the Markdown report into an editable lab-meeting PPT. It uses the report text plus `figures/` and `figures_ai/` assets to create a 15-25 slide journal-club deck with:
+
+- conclusion-style slide titles
+- figure-module result explanations
+- AI method/mechanism schematic slides
+- concise speaker-oriented slide text
+- PNG previews for visual QA
+- strict checks against whole-page Figure screenshots
 
 ## Output Style
 
-The generated report is written in Chinese and is suitable for:
+Generated outputs are written in Chinese and are suitable for:
 
 - journal club
 - lab meeting
@@ -37,7 +46,7 @@ The generated report is written in Chinese and is suitable for:
 - omics-method learning notes
 - figure-by-figure paper explanation
 
-The report usually contains:
+The Markdown report usually contains:
 
 ```text
 1. 文献信息
@@ -54,6 +63,21 @@ The report usually contains:
 12. 可复用的分析方法总结
 ```
 
+The PPT usually contains:
+
+```text
+1. 封面
+2. 研究背景
+3. 核心科学问题
+4. 样本与实验设计
+5. 方法 / AI workflow 示意图
+6. Results 逐段拆解
+7. 机制总结
+8. 创新点与局限性
+9. 对自己课题的启发
+10. 总结页
+```
+
 ## Cartoon Workflow
 
 ```text
@@ -61,25 +85,32 @@ The report usually contains:
    +------------+      +-------------+      +----------------+
    |  PDF paper | ---> | Read deeply | ---> | Markdown notes |
    +------------+      +-------------+      +----------------+
-         |                    |                      |
-         v                    v                      v
-    page text           Result logic          clean panel crops
-    metadata            AI schematic          reusable ideas
+                                                       |
+                                                       v
+                                             +----------------+
+                                             | Lab PPT deck   |
+                                             +----------------+
+
+     page text          Result logic          clean panel crops
+     metadata           AI schematic          reusable slides
 ```
 
-Think of it as a tiny paper-reading helper with a highlighter in one hand and a figure cutter in the other.
+Think of it as a tiny paper-reading helper with a highlighter in one hand, a figure cutter in the other, and a slide remote waiting on the desk.
 
 ## Repository Structure
 
 ```text
 read_paper_skills/
-├── SKILL.md
+├── SKILL.md                         # read-literature-pdf root skill
 ├── agents/
-│   └── openai.yaml
 ├── references/
-│   └── report-template.md
 ├── scripts/
-│   └── pdf_prep.py
+├── skills/
+    └── literature-ppt-from-markdown/
+        ├── SKILL.md
+        ├── agents/
+        └── references/
+            └── journal-club-ppt-style.md
 └── README.md
 ```
 
@@ -106,8 +137,25 @@ Recommended report output folders:
 paper_reading/
 ├── literature_reading_report.md
 ├── figures/       # only local panel/module crops from original paper figures
-└── figures_ai/    # 1-2 AI-generated method/mechanism schematics
+├── figures_ai/    # 1-2 AI-generated method/mechanism schematics
+└── presentation_output/
+    ├── paper_title_presentation.pptx
+    └── previews/
 ```
+
+### `skills/literature-ppt-from-markdown`
+
+The second-stage PPT skill. It reads a completed Markdown report and builds an editable PowerPoint deck for lab meeting or journal-club presentation.
+
+It follows these rules:
+
+- default 15-25 slides
+- no animation requirement
+- one slide, one message
+  - original paper images only from local panel/module crops
+- AI schematics only from `figures_ai/`
+- no whole-page Figure or PDF-page screenshots
+- render PNG previews and visually inspect before delivery
 
 ## Installation
 
@@ -117,17 +165,30 @@ Clone the repository:
 git clone git@github.com:FanFPu/read_paper_skills.git
 ```
 
-Install or copy the skill into your Codex skills directory:
+Install the PDF reading skill:
 
 ```bash
 mkdir -p ~/.codex/skills/read-literature-pdf
-cp -R read_paper_skills/* ~/.codex/skills/read-literature-pdf/
+cp -R read_paper_skills/SKILL.md \
+      read_paper_skills/agents \
+      read_paper_skills/references \
+      read_paper_skills/scripts \
+      ~/.codex/skills/read-literature-pdf/
 ```
 
-Then invoke it in Codex with:
+Install the PPT skill:
+
+```bash
+mkdir -p ~/.codex/skills/literature-ppt-from-markdown
+cp -R read_paper_skills/skills/literature-ppt-from-markdown/* \
+      ~/.codex/skills/literature-ppt-from-markdown/
+```
+
+Then invoke them in Codex with:
 
 ```text
 $read-literature-pdf
+$literature-ppt-from-markdown
 ```
 
 ## Typical Usage
@@ -148,6 +209,17 @@ For a more specific request:
 每个 Results 小节都要说明研究目的、样本、方法、主要结果、
 对应 figure panels、图示解读和可借鉴分析思路。
 ```
+
+After the Markdown report and image folders are ready:
+
+```text
+[$literature-ppt-from-markdown] 请根据这个 Markdown 文献精读报告，
+做一版 15-25 页的中文组会 PPT。
+要求按 Result 逻辑拆页，使用 figures/ 里的局部图块，
+使用 figures_ai/ 里的 AI 机制图，不要插入整页 Figure。
+```
+
+For older reports that used `figures_panel_modules/`, the PPT skill can treat that folder as the paper-derived panel/module image directory.
 
 ## Figure-Module Rule
 
