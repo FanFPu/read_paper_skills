@@ -583,10 +583,36 @@ def write_review_checklist(out_dir: Path) -> None:
 - [ ] 未使用 `page_003.png`、`Figure_1_full.png`、`Figure_2_page_5.png` 等整页截图或整页 Figure 作为 Result 配图。
 - [ ] AI 图仅作为封面或示意图，已明确标注不是原文数据图。
 - [ ] `wechat.html` 中图片路径可访问，复制到微信编辑器后版式正常。
+- [ ] 如果用户要求公众号草稿，已把图片通过微信后台上传为微信图床图片，而不是只保留本地路径。
+- [ ] 如果用户要求公众号草稿，已在后台保存草稿，并在 `wechat_draft_status.md` 记录标题、正文图片数、微信图床图片数、封面状态和剩余人工操作。
 - [ ] 未保存任何包含微信后台会话 token 参数的链接、AppID、AppSecret 或其他凭据。
 - [ ] 浏览器自动化只保存草稿，不点击群发、发表、发布或其他不可逆确认按钮。
 """
     (out_dir / "review_checklist.md").write_text(content, encoding="utf-8")
+
+
+def write_draft_status_template(out_dir: Path, metadata: dict[str, object]) -> None:
+    path = out_dir / "wechat_draft_status.md"
+    if path.exists():
+        return
+    title = metadata.get("selected_title", "原文未明确说明")
+    content = f"""# WeChat Backend Draft Status
+
+- Draft requested: not attempted by package builder
+- Draft saved: not attempted
+- Backend draft URL or id: not created
+- Title: {title}
+- Author/account: 生信探癌
+- Body status: local package generated only
+- Body images uploaded to WeChat: 0
+- WeChat-hosted image count: not checked
+- Cover status: not attempted
+- Missing or failed image uploads: not checked
+- Remaining manual action: if the user asked for a WeChat draft, open the WeChat Official Account backend, paste/import the article, upload all planned images through the WeChat image uploader, set or confirm the cover, save as draft, then replace this template with the verified backend status.
+- Publish status: not published and not mass-sent.
+- Token handling: do not store backend URLs containing WeChat session-token query parameters.
+"""
+    path.write_text(content, encoding="utf-8")
 
 
 def assert_no_wechat_token(out_dir: Path) -> None:
@@ -608,6 +634,7 @@ def build_package(article_path: Path, out_dir: Path) -> None:
     write_image_manifest(markdown, out_dir, article_path.parent)
     write_ai_prompts(out_dir, metadata)
     write_review_checklist(out_dir)
+    write_draft_status_template(out_dir, metadata)
     assert_no_wechat_token(out_dir)
 
 

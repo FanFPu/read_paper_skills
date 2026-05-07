@@ -15,7 +15,7 @@ It currently contains three linked workflows:
 
 1. `read-literature-pdf`: read a scientific PDF deeply and generate a structured Chinese Markdown report.
 2. `literature-ppt-from-markdown`: convert that Markdown report into an editable Chinese lab-meeting PowerPoint deck.
-3. `wechat-literature-article`: convert that Markdown report into a 生信探癌-style WeChat literature article where every Result module has a matching original paper figure crop.
+3. `wechat-literature-article`: convert that Markdown report into a 生信探癌-style WeChat literature article and, when requested, save a real WeChat backend draft with uploaded images and cover handling.
 
 The workflow is designed for biomedical and omics papers, especially papers involving single-cell sequencing, spatial transcriptomics, bulk RNA-seq, WES/WGS, imaging, flow cytometry, animal models, clinical cohorts, and immunology or cancer biology.
 
@@ -45,6 +45,8 @@ Turns the Markdown report into a public-facing Chinese WeChat article for `生�
 - every Result/结论详解 module must include at least one original paper panel/module crop from the source Markdown
 - AI schematics may help explain mechanisms but cannot replace required Result data figures
 - `image_manifest.csv` records Result section, figure path, figure label, and usage status
+- if the user asks for a WeChat draft, `wechat.html` is only an intermediate file; the expected endpoint is a saved backend draft with WeChat-hosted body images
+- cover assets must be uploaded and either bound in the cover selector or explicitly reported as needing manual confirmation
 
 ## Output Style
 
@@ -102,6 +104,20 @@ The WeChat article usually contains:
 8. 生信方法看点
 9. 小结
 10. 参考与图源说明
+```
+
+When a backend draft is requested, the WeChat package also tracks:
+
+```text
+wechat_article/
+├── article.md
+├── wechat.html
+├── metadata.json
+├── image_manifest.csv
+├── ai_image_prompts.md
+├── review_checklist.md
+├── cover_wechat.png
+└── wechat_draft_status.md
 ```
 
 ## Cartoon Workflow
@@ -198,12 +214,16 @@ The public-facing WeChat article skill. It consumes the Markdown report from `re
 - `image_manifest.csv`
 - `ai_image_prompts.md`
 - `review_checklist.md`
+- `cover_wechat.png` when a generated/custom cover is prepared
+- `wechat_draft_status.md` when backend draft creation is attempted or required
 
 It requires every Result/结论详解 module to include a matching original paper panel/module crop from the source Markdown. If the source Markdown lacks a usable crop, the article must say:
 
 ```text
 该 Result 缺少可用局部图块，需回到 read-literature-pdf 阶段补图。
 ```
+
+For draft requests, a local `wechat.html` alone is not considered complete. The workflow should open the WeChat Official Account backend, upload each body image through the editor or official API, verify WeChat-hosted images are visible in the draft, handle the cover image, save as draft, and record the verified status in `wechat_draft_status.md`. It must never click publish, mass-send, or irreversible confirmation buttons.
 
 ## Installation
 
@@ -286,6 +306,14 @@ To draft a WeChat article from the same reading report:
 要求学习公众号文献解读风格，但保留专业机制分析；
 每个 Result/结论详解模块都必须配一张 Markdown 中已有的原文局部图块，
 不能用整页 Figure 或 AI 图替代 Result 数据图。
+```
+
+To create a real backend draft:
+
+```text
+[$wechat-literature-article] 请根据这个 Markdown 文献精读报告，
+写成生信探癌公众号推文，并帮我上传到微信公众号后台保存为草稿。
+正文图片必须一起上传，封面也要上传；不要只给我 wechat.html。
 ```
 
 ## Figure-Module Rule

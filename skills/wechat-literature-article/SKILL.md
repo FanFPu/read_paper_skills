@@ -1,17 +1,17 @@
 ---
 name: wechat-literature-article
-description: Generate Chinese WeChat Official Account publishing packages and optional browser-assisted draft creation for the 生信探癌 account from biomedical literature PDFs. Always use read-literature-pdf first to produce a deep Markdown reading report from PDFs, then rewrite that Markdown into a WeChat article with HTML, metadata, cancer/technology classification, topic tags, figure notes, AI scientific infographic prompts, and pre-publication checks. Use when the user asks for 公众号推文, 微信推文, 生信探癌文章, 文献解读推文, or WeChat draft publishing from a paper PDF or Markdown report.
+description: Generate Chinese WeChat Official Account publishing packages and browser-assisted backend drafts for the 生信探癌 account from biomedical literature PDFs. Always use read-literature-pdf first to produce a deep Markdown reading report from PDFs, then rewrite that Markdown into a WeChat article with metadata, cancer/technology classification, topic tags, figure notes, AI scientific infographic prompts, WeChat-ready HTML, and, when the user asks for a 草稿, a saved WeChat backend draft with uploaded body images and cover assets. Use when the user asks for 公众号推文, 微信推文, 生信探癌文章, 文献解读推文, or WeChat draft publishing from a paper PDF or Markdown report.
 ---
 
 # Wechat Literature Article
 
 ## Goal
 
-Produce a WeChat Official Account publishing package for `生信探癌` from a biomedical paper PDF or an existing literature-reading Markdown report. The package should read like a professional Chinese WeChat article for bioinformatics and oncology researchers, not like a formal group-meeting report. It should use a public-facing research narrative: research background -> samples and methods -> conclusion walkthrough -> bioinformatics highlights -> summary.
+Produce a WeChat Official Account publishing package and, when requested, a real WeChat backend draft for `生信探癌` from a biomedical paper PDF or an existing literature-reading Markdown report. The article should read like a professional Chinese WeChat article for bioinformatics and oncology researchers, not like a formal group-meeting report. It should use a public-facing research narrative: research background -> samples and methods -> conclusion walkthrough -> bioinformatics highlights -> summary.
 
 For PDFs, this skill is explicitly a downstream layer of `$read-literature-pdf`: first create the full Markdown reading report, then rewrite that Markdown into the WeChat article. Do not skip the Markdown reading report and draft directly from raw PDF text unless the user explicitly asks for a fast rough preview.
 
-This skill may help with browser-assisted draft creation only after the publishing package is generated. It must create or prepare a draft only; it must not mass-send, publish, or make irreversible account changes without explicit user confirmation.
+If the user asks to `做成草稿`, `上传到公众号`, `生成公众号草稿`, `放到后台`, or otherwise requests a WeChat draft, generating only `article.md`/`wechat.html` is **not complete**. The required deliverable is a saved backend draft in the WeChat Official Account editor, with body images uploaded to WeChat's image system and a cover image uploaded or explicitly reported as blocked. It must create or prepare a draft only; it must not mass-send, publish, or make irreversible account changes without explicit user confirmation.
 
 When the user explicitly authorizes the whole draft workflow for the current turn, such as `下面所有问题都允许`, `直接帮我做到草稿`, or `我都允许`, treat draft-saving operations as approved for that turn. This approval still does **not** include publishing, mass-sending, changing account settings, changing credentials, or deleting existing materials.
 
@@ -33,6 +33,7 @@ Create a stable output folder near the input, such as `<paper-stem>_wechat/`, co
 - `image_manifest.csv`: original figures, AI figures, locations, usage purpose, source/copyright notes, and review status.
 - `ai_image_prompts.md`: AI cover and scientific schematic prompts.
 - `review_checklist.md`: manual checks before pasting or uploading to WeChat.
+- `wechat_draft_status.md` when browser/API draft creation is attempted: backend draft URL with any token redacted, title, body image upload count, cover status, save status, and remaining manual checks.
 
 Use `scripts/build_wechat_package.py` after drafting `article.md` to generate or refresh support files:
 
@@ -58,7 +59,8 @@ python /path/to/wechat-literature-article/scripts/build_wechat_package.py articl
 7. Add original paper figure modules from the reading report for multi-image explanation. Every Result or `结论详解` module in the article must include at least one original paper panel/module image from the source Markdown. Cite each original figure in `image_manifest.csv`.
 8. Add AI scientific infographic prompts for the cover and explanatory schematics. AI figures must be marked as schematics, not paper data.
 9. Generate the package files with `scripts/build_wechat_package.py`.
-10. Run the quality checklist before final delivery.
+10. If the user requested a backend draft, open WeChat, upload images, create/save the draft, and verify the draft is not text-only.
+11. Run the quality checklist before final delivery.
 
 ## Default Article Structure
 
@@ -194,9 +196,26 @@ See `references/ai-image-guide.md` for prompt patterns.
 - For future API automation, read AppID/AppSecret from environment variables or an uncommitted local config. Never write credentials into skill files or article packages.
 - Automation should create drafts by default. Any mass-send or publish action must require explicit human confirmation.
 
+## Mandatory Backend Draft Requirement
+
+This section is binding whenever the user asks for a WeChat draft.
+
+1. `wechat.html` is only an intermediate staging file. Do not present it as the final result for a draft request.
+2. The final draft must be saved in the WeChat Official Account backend unless browser/API access is blocked.
+3. The draft must not be text-only. Body images required by the article must be uploaded through the WeChat editor or official API so they become WeChat-hosted image URLs, commonly `mmbiz.qpic.cn` or equivalent WeChat media URLs.
+4. Local image paths such as `file:///...`, `../figures/...`, `/Users/...`, or data URLs do **not** count as uploaded WeChat draft images.
+5. The number of WeChat-hosted body images visible in the editor must be checked against the article image plan:
+   - at least one original data figure per Result/结论详解 module;
+   - 1-2 AI schematic/cover images when used by the article;
+   - any intentionally omitted images must be listed in `wechat_draft_status.md`.
+6. A cover image is required for normal 生信探癌 drafts. Prefer an AI-generated or custom cover image from `figures_ai/`, `ai_images/`, or the package folder. Upload it and set it as cover when the UI allows.
+7. If cover binding is blocked by the WeChat UI, login/account verification, missing browser permissions, or modal dialogs, leave the uploaded cover image as the first body image, report the exact blocker, and state the manual action needed. Do not claim that the cover is fully set unless the cover preview/field is verified.
+8. A saved draft must be verified after clicking `保存为草稿` or equivalent. Verification must include the backend editor still containing the title, non-empty body, and uploaded WeChat-hosted images.
+9. Never click `发表`, `发布`, `群发`, or irreversible confirmation controls while satisfying this requirement.
+
 ## Browser/Computer-Assisted Draft Workflow
 
-Use this workflow only after the publishing package exists and the user asks to open WeChat or create a draft.
+Use this workflow after the publishing package exists and the user asks to open WeChat or create a draft. For draft requests, this workflow is required, not optional.
 
 ### Tool Preference
 
@@ -241,13 +260,13 @@ Fill fields from the package:
    - title: `metadata.json -> selected_title`
    - author/account: `生信探癌` unless the backend already sets it
    - digest/summary: `metadata.json -> summary`
-   - body: paste/copy content from `wechat.html` or `article.md`, preserving images where possible
+   - body: paste/copy content from `wechat.html` or `article.md`, then upload/replace all local images with WeChat-hosted images
    - primary collection/topic: `metadata.json -> primary_collection`
    - topic tags: `metadata.json -> topic_tags`
    - original declaration: set to `原创` / `文字原创` when the article is rewritten by 生信探癌 and the user asks for original declaration
    - original article/source URL: prefer DOI URL, PubMed URL, publisher URL, or paper landing page from `metadata.json`
    - creation source: use a transparent source note, for example `基于原文文献解读与 AI 辅助整理，结合生信探癌原创分析撰写`
-   - cover: upload an AI-generated cover image from `image_manifest.csv` or `ai_images/`, preferably a visually attractive biomedical schematic related to the paper
+   - cover: upload an AI-generated or custom cover image from `image_manifest.csv`, `figures_ai/`, `ai_images/`, or the package folder, preferably a visually attractive biomedical schematic related to the paper
 
 ### Robust Editor Filling
 
@@ -255,16 +274,18 @@ WeChat's editor is a web app and its DOM may change. Use visible UI controls fir
 
 1. Fill the title and author fields through visible editable placeholders when possible.
 2. For the body, prefer inserting sanitized HTML generated from `wechat.html`. If the editor rejects direct paste, set the editor's rich-text container content and dispatch input/change/composition events so the word count updates.
-3. After filling the body, verify that:
+3. Do not assume local HTML image tags will survive in WeChat. The editor often strips `file://` or local relative image sources. Treat local HTML image insertion as a temporary layout step only.
+4. After filling the body, verify that:
    - the left preview card title changed;
    - the editor word count is greater than 0;
    - the first paragraph and at least one section heading are visible.
-4. Keep the article concise enough for WeChat reading. If the source Markdown is long, draft a polished public-facing version rather than dumping the full literature report.
-5. Never insert fabricated data tables, fake charts, or invented paper figures.
+5. Remove internal-only drafting blocks such as `备选标题` from the final backend body unless the user explicitly wants them visible.
+6. Keep the article concise enough for WeChat reading. If the source Markdown is long, draft a polished public-facing version rather than dumping the full literature report.
+7. Never insert fabricated data tables, fake charts, or invented paper figures.
 
 ### Image Upload And Placement
 
-Images are required for this account's literature articles unless the user explicitly asks for text only.
+Images are required for this account's literature articles unless the user explicitly asks for text only. For backend drafts, they must be uploaded into WeChat, not merely referenced in HTML.
 
 1. Use `image_manifest.csv` to decide what to upload:
    - `cover`: AI cover image, attractive and related to the paper topic.
@@ -279,7 +300,10 @@ Images are required for this account's literature articles unless the user expli
    - caption every AI figure as `AI 生成示意图`;
    - never present AI figures as original experimental data.
 4. If a top-toolbar image upload inserts a body image but disrupts the current article body, capture the uploaded WeChat image URL, then restore the full article body and embed that URL in the correct section.
-5. After upload, verify that image elements are visible in the editor, not merely listed in local files.
+5. If direct HTML insertion drops images, upload each local image file through the editor's image upload control, place it at the correct figure label/caption anchor, and verify it becomes a WeChat-hosted URL.
+6. After upload, verify that image elements are visible in the editor, not merely listed in local files.
+7. Count and report the uploaded body images. A valid image check should distinguish actual content images from editor separator images; for example count `img.rich_pages`, `img.wxw-img`, or WeChat-hosted `mmbiz.qpic.cn` images rather than all `<img>` tags.
+8. If an image cannot be uploaded, leave the local file path and Result section in `wechat_draft_status.md`, and explicitly state that the backend draft is incomplete.
 
 ### Cover, Original, Source, And Article Settings
 
@@ -288,7 +312,8 @@ Before saving the draft, complete the article settings panel as far as the curre
 1. Cover:
    - upload the AI cover image if a cover picker or `编辑封面` dialog is available;
    - crop/confirm the cover when WeChat requires it;
-   - if cover upload fails because the UI blocks automation, leave the cover file ready and report it explicitly.
+   - verify the cover preview/field after confirmation;
+   - if cover upload or binding fails because the UI blocks automation, leave the cover uploaded as the first body image when possible, keep the local cover file ready, and report the exact manual action needed.
 2. Original:
    - when the user asks for original declaration and the text is rewritten by 生信探癌, enable `原创` / `文字原创`;
    - set author to `生信探癌` when requested;
@@ -316,13 +341,19 @@ Before saving the draft, complete the article settings panel as far as the curre
    - a success toast appears;
    - the draft remains in the editor with the filled title/body;
    - the draft list/history shows the new draft.
+   For draft requests, also verify:
+   - the editor contains uploaded WeChat-hosted images, not just local `file://` images;
+   - the uploaded image count matches the expected article image count or any mismatch is explained;
+   - the cover state is `set`, `uploaded as first body image but not bound`, or `blocked`.
 5. Report the exact status:
    - draft saved or not saved;
    - title used;
    - body image count visible in the editor;
+   - WeChat-hosted image count visible in the editor;
    - cover status;
    - original/source/creation-source status;
    - any manual review still needed.
+6. Write the same status to `wechat_draft_status.md` in the output package. Redact session tokens in any backend URL.
 
 ### API Draft Route For Later Automation
 
@@ -344,6 +375,8 @@ Before finalizing:
 - Original paper figures are listed in `image_manifest.csv` with source and review notes.
 - AI images/prompts are clearly marked as schematics and do not imply they are original data.
 - `wechat.html` renders the article with headings, paragraphs, blockquotes, lists, tables, and images suitable for copy-paste into a WeChat editor.
+- If the user requested a backend draft, the WeChat editor contains uploaded WeChat-hosted images; a text-only backend draft is not acceptable.
+- If the user requested a backend draft, `wechat_draft_status.md` records title, draft save status, body image count, WeChat-hosted image count, cover status, and remaining manual actions.
 - No WeChat backend token URL or credential is stored in any output file.
 
 ## Resources
