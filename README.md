@@ -4,17 +4,18 @@
         .--.
        / _  \        PDF
       | (_)  |   +---------+       +----------+
-       \__  /    | paper   |  ->  | Markdown |  ->  lab-meeting PPT
+       \__  /    | paper   |  ->  | Markdown |  ->  PPT / WeChat
        / /       +---------+
       /_/          panel crops + AI schematics + journal-club slides
 ```
 
-`read_paper_skills` is a small skill collection for biomedical paper reading and lab-meeting preparation.
+`read_paper_skills` is a small skill collection for biomedical paper reading, lab-meeting preparation, and WeChat literature article drafting.
 
-It currently contains two linked workflows:
+It currently contains three linked workflows:
 
 1. `read-literature-pdf`: read a scientific PDF deeply and generate a structured Chinese Markdown report.
 2. `literature-ppt-from-markdown`: convert that Markdown report into an editable Chinese lab-meeting PowerPoint deck.
+3. `wechat-literature-article`: convert that Markdown report into a 生信探癌-style WeChat literature article where every Result module has a matching original paper figure crop.
 
 The workflow is designed for biomedical and omics papers, especially papers involving single-cell sequencing, spatial transcriptomics, bulk RNA-seq, WES/WGS, imaging, flow cytometry, animal models, clinical cohorts, and immunology or cancer biology.
 
@@ -34,6 +35,16 @@ Turns the Markdown report into an editable lab-meeting PPT. It uses the report t
 - concise speaker-oriented slide text
 - PNG previews for visual QA
 - strict checks against whole-page Figure screenshots
+
+### `wechat-literature-article`
+
+Turns the Markdown report into a public-facing Chinese WeChat article for `生信探癌`. It rewrites the group-meeting report into a readable research narrative:
+
+- title candidates in the style `期刊 | 技术亮点 + 癌种/疾病 + 核心机制轴`
+- `研究背景 -> 样本与方法 -> 结论详解 -> 生信方法看点 -> 小结`
+- every Result/结论详解 module must include at least one original paper panel/module crop from the source Markdown
+- AI schematics may help explain mechanisms but cannot replace required Result data figures
+- `image_manifest.csv` records Result section, figure path, figure label, and usage status
 
 ## Output Style
 
@@ -78,6 +89,21 @@ The PPT usually contains:
 10. 总结页
 ```
 
+The WeChat article usually contains:
+
+```text
+1. 标题候选
+2. 开头
+3. 论文信息
+4. 一句话总结
+5. 研究背景
+6. 样本与方法
+7. 结论详解（每个 Result 必须配原文局部图块）
+8. 生信方法看点
+9. 小结
+10. 参考与图源说明
+```
+
 ## Cartoon Workflow
 
 ```text
@@ -88,7 +114,7 @@ The PPT usually contains:
                                                        |
                                                        v
                                              +----------------+
-                                             | Lab PPT deck   |
+                                             | PPT / WeChat   |
                                              +----------------+
 
      page text          Result logic          clean panel crops
@@ -106,11 +132,16 @@ read_paper_skills/
 ├── references/
 ├── scripts/
 ├── skills/
-    └── literature-ppt-from-markdown/
-        ├── SKILL.md
-        ├── agents/
-        └── references/
-            └── journal-club-ppt-style.md
+│   ├── literature-ppt-from-markdown/
+│   │   ├── SKILL.md
+│   │   ├── agents/
+│   │   └── references/
+│   │       └── journal-club-ppt-style.md
+│   └── wechat-literature-article/
+│       ├── SKILL.md
+│       ├── agents/
+│       ├── references/
+│       └── scripts/
 └── README.md
 ```
 
@@ -152,10 +183,27 @@ It follows these rules:
 - default 15-25 slides
 - no animation requirement
 - one slide, one message
-  - original paper images only from local panel/module crops
+- original paper images only from local panel/module crops
 - AI schematics only from `figures_ai/`
 - no whole-page Figure or PDF-page screenshots
 - render PNG previews and visually inspect before delivery
+
+### `skills/wechat-literature-article`
+
+The public-facing WeChat article skill. It consumes the Markdown report from `read-literature-pdf` and creates a WeChat publishing package:
+
+- `article.md`
+- `wechat.html`
+- `metadata.json`
+- `image_manifest.csv`
+- `ai_image_prompts.md`
+- `review_checklist.md`
+
+It requires every Result/结论详解 module to include a matching original paper panel/module crop from the source Markdown. If the source Markdown lacks a usable crop, the article must say:
+
+```text
+该 Result 缺少可用局部图块，需回到 read-literature-pdf 阶段补图。
+```
 
 ## Installation
 
@@ -184,11 +232,20 @@ cp -R read_paper_skills/skills/literature-ppt-from-markdown/* \
       ~/.codex/skills/literature-ppt-from-markdown/
 ```
 
+Install the WeChat article skill:
+
+```bash
+mkdir -p ~/.codex/skills/wechat-literature-article
+cp -R read_paper_skills/skills/wechat-literature-article/* \
+      ~/.codex/skills/wechat-literature-article/
+```
+
 Then invoke them in Codex with:
 
 ```text
 $read-literature-pdf
 $literature-ppt-from-markdown
+$wechat-literature-article
 ```
 
 ## Typical Usage
@@ -220,6 +277,16 @@ After the Markdown report and image folders are ready:
 ```
 
 For older reports that used `figures_panel_modules/`, the PPT skill can treat that folder as the paper-derived panel/module image directory.
+
+To draft a WeChat article from the same reading report:
+
+```text
+[$wechat-literature-article] 请根据这个 Markdown 文献精读报告，
+写一版生信探癌公众号推文。
+要求学习公众号文献解读风格，但保留专业机制分析；
+每个 Result/结论详解模块都必须配一张 Markdown 中已有的原文局部图块，
+不能用整页 Figure 或 AI 图替代 Result 数据图。
+```
 
 ## Figure-Module Rule
 

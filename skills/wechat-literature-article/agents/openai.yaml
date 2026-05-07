@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Literature Article"
+  short_description: "Create 生信探癌 WeChat article publishing packages"
+  default_prompt: "Use $wechat-literature-article to turn this paper PDF or literature-reading Markdown into a 生信探癌 WeChat publishing package with article Markdown, WeChat HTML, metadata, classification, image manifest, AI image prompts, and review checklist."
