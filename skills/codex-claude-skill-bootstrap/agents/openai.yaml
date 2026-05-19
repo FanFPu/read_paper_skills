@@ -1,0 +1,3 @@
+display_name: "Codex/Claude Skill Bootstrap"
+short_description: "Package and install user-owned Codex/Claude skills safely."
+default_prompt: "Create or update a safe one-command installer for my user-owned Codex and Claude skills. Detect official/proprietary skills but do not publish their contents."
